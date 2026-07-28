@@ -1,11 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Product" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorPrimaryVariant">#121212</item>
+    <style name="Theme.Product" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#6200EE</item>
+        <item name="colorPrimaryVariant">#3700B3</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">#00E5FF</item>
+        <item name="colorSecondary">#03DAC6</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- Boja statusne trake će biti ista kao Toolbar -->
+        <item name="android:statusBarColor">#6200EE</item>
+        <!-- Isključujemo 'light' status bar kako bi ikone (sat, baterija) ostale BIJELE -->
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="SplashScreenTheme" parent="Theme.Product">

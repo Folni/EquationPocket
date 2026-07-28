@@ -2,19 +2,19 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@id/menuItems"
+    app:startDestination="@id/menuPockets"
     android:id="@+id/fragments">
 
     <fragment
-        android:id="@+id/menuItems"
-        android:label="@string/items"
-        android:name="hr.algebra.androidzero.fragment.ItemsFragment"
-        tools:layout="@layout/fragment_items"/>
+        android:id="@+id/menuPockets"
+        android:label="@string/pockets"
+        android:name="hr.algebra.equationpocket.fragment.PocketsFragment"
+        tools:layout="@layout/fragment_pockets"/>
 
     <fragment
         android:id="@+id/menuAbout"
         android:label="@string/about"
-        android:name="hr.algebra.androidzero.fragment.AboutFragment"
+        android:name="hr.algebra.equationpocket.fragment.AboutFragment"
         tools:layout="@layout/fragment_about"/>
 
 </navigation>

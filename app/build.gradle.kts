@@ -1,14 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
-    namespace = "hr.algebra.androidzero"
+    namespace = "hr.algebra.equationpocket"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "hr.algebra.androidzero"
+        applicationId = "hr.algebra.equationpocket"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -67,5 +68,11 @@ dependencies {
         testImplementation("junit:junit:4.13.2")
         androidTestImplementation("androidx.test.ext:junit:1.1.5")
         androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+        // Room
+        val room_version = "2.6.1"
+        implementation("androidx.room:room-runtime:$room_version")
+        implementation("androidx.room:room-ktx:$room_version")
+        kapt("androidx.room:room-compiler:$room_version")
     }
 }

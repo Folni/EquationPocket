@@ -20,7 +20,7 @@
 
         <provider
             android:name=".ProductProvider"
-            android:authorities="hr.algebra.androidzero.provider"
+            android:authorities="hr.algebra.equationpocket.provider"
             android:enabled="true"
             android:exported="false" />
 

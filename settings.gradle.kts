@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AndroidZero"
+rootProject.name = "EquationPocket"
 include(":app")
