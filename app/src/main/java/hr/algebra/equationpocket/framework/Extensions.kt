@@ -14,8 +14,6 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.core.content.edit
 import androidx.core.content.getSystemService
-import hr.algebra.equationpocket.PRODUCT_PROVIDER_CONTENT_URI
-import hr.algebra.equationpocket.model.Item
 
 fun View.applyAnimation(id: Int) =
     startAnimation(AnimationUtils.loadAnimation(context, id))
@@ -42,35 +40,6 @@ fun Context.isOnline(): Boolean {
         }
     }
     return false
-}
-
-@SuppressLint("Range")
-fun Context.fetchItems(): MutableList<Item> {
-    val items = mutableListOf<Item>()
-
-    contentResolver.query(
-        PRODUCT_PROVIDER_CONTENT_URI,
-        null,
-        null,
-        null,
-        null
-    ).use { rs ->
-        while (rs?.moveToNext() == true) {
-            items.add(
-                Item(
-                    rs.getLong(rs.getColumnIndex(Item::_id.name)),
-                    rs.getString(rs.getColumnIndex(Item::title.name)),
-                    rs.getString(rs.getColumnIndex(Item::explanation.name)),
-                    rs.getString(rs.getColumnIndex(Item::picturePath.name)),
-                    rs.getDouble(rs.getColumnIndex(Item::price.name)),
-                    rs.getDouble(rs.getColumnIndex(Item::rate.name)),
-                    rs.getInt(rs.getColumnIndex(Item::count.name)),
-                    rs.getInt(rs.getColumnIndex(Item::read.name)) == 1
-                )
-            )
-        }
-    }
-    return items
 }
 
 fun callDelayed(delay: Long, work: Runnable) {

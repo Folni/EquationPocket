@@ -37,42 +37,56 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    packaging {
+        resources {
+            pickFirsts += "graphml.xsd"
+            pickFirsts += "xlink.xsd"
+            pickFirsts += "viz.xsd"
+            pickFirsts += "**/*.xsd"
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE*"
+            excludes += "META-INF/NOTICE*"
+            excludes += "META-INF/*.kotlin_module"
+            excludes += "META-INF/ASL2.0"
+        }
+    }
 }
 
 dependencies {
+    // Standardne Android stvari
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
 
-    dependencies {
-        // Standardne Android stvari
-        implementation("androidx.core:core-ktx:1.12.0")
-        implementation("androidx.appcompat:appcompat:1.6.1")
-        implementation("com.google.android.material:material:1.11.0")
-        implementation("androidx.activity:activity-ktx:1.8.2")
-        implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-        implementation("androidx.preference:preference-ktx:1.2.1")
-        implementation("androidx.work:work-runtime-ktx:2.9.0")
+    // Navigation (ako koristiš fragmente kao kolega)
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
 
-        // Navigation (ako koristiš fragmente kao kolega)
-        implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
-        implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
+    // Retrofit (za dohvaćanje podataka s interneta)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10.1")
 
-        // Retrofit (za dohvaćanje podataka s interneta)
-        implementation("com.squareup.retrofit2:retrofit:2.9.0")
-        implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-        implementation("com.google.code.gson:gson:2.10.1")
+    // Picasso (za slike)
+    implementation("com.squareup.picasso:picasso:2.8")
+    implementation("jp.wasabeef:picasso-transformations:2.4.0")
 
-        // Picasso (za slike)
-        implementation("com.squareup.picasso:picasso:2.8")
-        implementation("jp.wasabeef:picasso-transformations:2.4.0")
+    // Testiranje
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-        // Testiranje
-        testImplementation("junit:junit:4.13.2")
-        androidTestImplementation("androidx.test.ext:junit:1.1.5")
-        androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-
-        // Room
-        val room_version = "2.6.1"
-        implementation("androidx.room:room-runtime:$room_version")
-        implementation("androidx.room:room-ktx:$room_version")
-        kapt("androidx.room:room-compiler:$room_version")
-    }
+    // Room
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+    
+    // Math engine
+    implementation("org.matheclipse:matheclipse-core:3.2.0")
 }

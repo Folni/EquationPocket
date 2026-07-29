@@ -13,25 +13,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Product">
-        <activity
-            android:name=".ItemPagerActivity"
-            android:exported="false" />
-
-        <provider
-            android:name=".ProductProvider"
-            android:authorities="hr.algebra.equationpocket.provider"
-            android:enabled="true"
-            android:exported="false" />
-
-        <receiver
-            android:name=".ProductReceiver"
-            android:enabled="true"
-            android:exported="false" />
+        android:theme="@style/Theme.EquationPocket">
 
         <activity
             android:name=".HostActivity"
             android:exported="false" />
+
         <activity
             android:name=".SplashScreenActivity"
             android:exported="true"

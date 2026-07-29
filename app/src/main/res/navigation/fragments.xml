@@ -9,12 +9,40 @@
         android:id="@+id/menuPockets"
         android:label="@string/pockets"
         android:name="hr.algebra.equationpocket.fragment.PocketsFragment"
-        tools:layout="@layout/fragment_pockets"/>
+        tools:layout="@layout/fragment_pockets">
+        <action
+            android:id="@+id/action_pockets_to_equations"
+            app:destination="@id/equationsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/menuAbout"
         android:label="@string/about"
         android:name="hr.algebra.equationpocket.fragment.AboutFragment"
         tools:layout="@layout/fragment_about"/>
+
+    <fragment
+        android:id="@+id/equationsFragment"
+        android:name="hr.algebra.equationpocket.fragment.EquationsFragment"
+        android:label="{pocketName}">
+        <argument
+            android:name="pocketId"
+            app:argType="long" />
+        <argument
+            android:name="pocketName"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_equations_to_solver"
+            app:destination="@id/solverFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/solverFragment"
+        android:name="hr.algebra.equationpocket.fragment.SolverFragment"
+        android:label="Solver">
+        <argument
+            android:name="formula"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

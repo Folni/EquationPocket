@@ -8,6 +8,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import hr.algebra.equationpocket.R
 import hr.algebra.equationpocket.adapter.PocketAdapter
@@ -43,7 +44,11 @@ class PocketsFragment : Fragment() {
         pocketAdapter = PocketAdapter(
             emptyList(),
             onPocketClick = { pocket ->
-                // Ovdje ćemo kasnije otvoriti listu jednadžbi za ovu mapu
+                val bundle = Bundle().apply {
+                    putLong("pocketId", pocket._id ?: -1L)
+                    putString("pocketName", pocket.name)
+                }
+                findNavController().navigate(R.id.action_pockets_to_equations, bundle)
             },
             onPocketLongClick = { pocket ->
                 showDeleteDialog(pocket)

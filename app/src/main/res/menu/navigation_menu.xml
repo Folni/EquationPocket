@@ -8,11 +8,6 @@
         android:icon="@drawable/items"/>
 
     <item
-        android:id="@+id/menuItems"
-        android:title="@string/items"
-        android:icon="@drawable/items"/>
-
-    <item
         android:id="@+id/menuAbout"
         android:title="@string/about"
         android:icon="@drawable/about"/>

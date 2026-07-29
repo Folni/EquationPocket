@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Product" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.EquationPocket" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">#6200EE</item>
         <item name="colorPrimaryVariant">#3700B3</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -11,7 +11,7 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <style name="SplashScreenTheme" parent="Theme.Product">
+    <style name="SplashScreenTheme" parent="Theme.EquationPocket">
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="windowActionBar">false</item>
