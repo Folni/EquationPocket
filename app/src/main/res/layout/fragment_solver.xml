@@ -34,12 +34,31 @@
 
             <!-- Dinamički dodana polja će ići ovdje -->
 
-            <Button
-                android:id="@+id/btnCalculate"
+            <LinearLayout
+                android:id="@+id/layoutButtons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Izračunaj" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/btnCalculate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Izračunaj" />
+
+                <Button
+                    android:id="@+id/btnDecimalToggle"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="AC"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvResult"
@@ -50,6 +69,16 @@
                 android:textColor="@color/teal_700"
                 android:textSize="20sp"
                 android:textStyle="bold"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnViewHistory"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="Prikaži povijest"
                 android:visibility="gone" />
 
         </LinearLayout>

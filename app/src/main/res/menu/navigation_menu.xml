@@ -12,4 +12,9 @@
         android:title="@string/about"
         android:icon="@drawable/about"/>
 
+    <item
+        android:id="@+id/menuHelp"
+        android:title="@string/help"
+        android:icon="@drawable/items"/>
+
 </menu>

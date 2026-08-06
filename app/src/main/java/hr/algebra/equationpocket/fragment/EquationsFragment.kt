@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.tabs.TabLayout
 import hr.algebra.equationpocket.R
 import hr.algebra.equationpocket.adapter.EquationAdapter
 import hr.algebra.equationpocket.dao.AppDatabase
@@ -82,7 +84,33 @@ class EquationsFragment : Fragment() {
 
     private fun showAddEquationDialog() {
         val dialogBinding = DialogAddEquationBinding.inflate(layoutInflater)
+        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         
+        dialogBinding.keyboardContainerDialog.visibility = View.GONE
+        
+        dialogBinding.etEquationFormula.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                imm.hideSoftInputFromWindow(v.windowToken, 0)
+                dialogBinding.etEquationFormula.showSoftInputOnFocus = false
+                dialogBinding.keyboardContainerDialog.visibility = View.VISIBLE
+            } else {
+                dialogBinding.keyboardContainerDialog.visibility = View.GONE
+            }
+        }
+        
+        val textFields = listOf(dialogBinding.etEquationName, dialogBinding.etEquationDescription)
+        textFields.forEach { field ->
+            field.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    dialogBinding.keyboardContainerDialog.visibility = View.GONE
+                    field.showSoftInputOnFocus = true
+                    imm.showSoftInput(v, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+                }
+            }
+        }
+
+        setupDialogKeyboard(dialogBinding)
+
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.equation_name)
             .setView(dialogBinding.root)
@@ -104,6 +132,61 @@ class EquationsFragment : Fragment() {
             .show()
     }
 
+    private fun setupDialogKeyboard(dialogBinding: DialogAddEquationBinding) {
+        val keys123 = listOf("1", "2", "3", "+", "-", "4", "5", "6", "*", "/", "7", "8", "9", "(", ")", "0", ".", "^", "=", "DEL")
+        val keysAbc = ('a'..'z').map { it.toString() } + "DEL"
+        val keysSymbols = listOf("Δ", "π", "α", "β", "γ", "θ", "λ", "e", "i", "φ", "Ω", "∞", "→", "!", "[", "]", "{", "}", ",", " ", "DEL")
+        val keysAdvanced = listOf("D", "lim", "Sum", "∫", "√", "log", "ln", "sin", "cos", "tan", "cot", "sec", "csc", "asin", "acos", "atan", "floor", "ceil", "abs", "DEL")
+
+        fun updateKeyboard(keys: List<String>) {
+            dialogBinding.mathKeyboardDialog.gridKeyboard.removeAllViews()
+            // Prilagođavamo broj stupaca ovisno o količini tipki za bolji prikaz
+            dialogBinding.mathKeyboardDialog.gridKeyboard.columnCount = if (keys.size > 20) 6 else 5
+            
+            keys.forEach { key ->
+                val button = Button(requireContext()).apply {
+                    text = key
+                    setOnClickListener {
+                        val focusedView = dialogBinding.etEquationFormula
+                        val editable = focusedView.text
+                        if (key == "DEL") {
+                            val start = focusedView.selectionStart
+                            if (start > 0 && editable != null) {
+                                editable.delete(start - 1, start)
+                            }
+                        } else if (editable != null) {
+                            editable.insert(focusedView.selectionStart, key)
+                        }
+                    }
+                }
+                val params = android.widget.GridLayout.LayoutParams(
+                    android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f),
+                    android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f)
+                ).apply { 
+                    width = 0 
+                    height = (48 * resources.displayMetrics.density).toInt()
+                }
+                dialogBinding.mathKeyboardDialog.gridKeyboard.addView(button, params)
+            }
+        }
+
+        updateKeyboard(keys123)
+        dialogBinding.mathKeyboardDialog.btnKeyboardCalculate.visibility = View.GONE
+
+        dialogBinding.mathKeyboardDialog.tabLayoutKeyboard.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                when (tab?.position) {
+                    0 -> updateKeyboard(keys123)
+                    1 -> updateKeyboard(keysAbc)
+                    2 -> updateKeyboard(keysSymbols)
+                    3 -> updateKeyboard(keysAdvanced)
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+    }
+
     private fun saveEquation(equation: Equation) {
         lifecycleScope.launch {
             database.equationDao().insertEquation(equation)
@@ -112,7 +195,7 @@ class EquationsFragment : Fragment() {
 
     private fun showDeleteDialog(equation: Equation) {
         AlertDialog.Builder(requireContext())
-            .setTitle(R.string.exit) // Iskoristit ćemo postojeći string za naslov ili dodati novi
+            .setTitle(R.string.exit)
             .setMessage("Želite li obrisati jednadžbu '${equation.name}'?")
             .setPositiveButton("Obriši") { _, _ ->
                 lifecycleScope.launch {
