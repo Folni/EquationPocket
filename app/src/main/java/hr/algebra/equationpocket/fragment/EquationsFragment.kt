@@ -71,7 +71,9 @@ class EquationsFragment : Fragment() {
     private fun observeEquations() {
         lifecycleScope.launch {
             database.equationDao().getEquationsForPocket(pocketId).collect { equations ->
-                equationAdapter.updateData(equations)
+                // Sortiranje: Favorit ide na vrh
+                val sortedList = equations.sortedByDescending { it.isFavorite }
+                equationAdapter.updateData(sortedList)
             }
         }
     }
@@ -98,7 +100,7 @@ class EquationsFragment : Fragment() {
             }
         }
         
-        val textFields = listOf(dialogBinding.etEquationName, dialogBinding.etEquationDescription)
+        val textFields = listOf(dialogBinding.etEquationName)
         textFields.forEach { field ->
             field.setOnFocusChangeListener { v, hasFocus ->
                 if (hasFocus) {
@@ -117,13 +119,11 @@ class EquationsFragment : Fragment() {
             .setPositiveButton(R.string.items) { _, _ ->
                 val name = dialogBinding.etEquationName.text.toString()
                 val formula = dialogBinding.etEquationFormula.text.toString()
-                val desc = dialogBinding.etEquationDescription.text.toString()
                 
                 if (name.isNotBlank() && formula.isNotBlank()) {
                     saveEquation(Equation(
                         name = name,
                         formula = formula,
-                        description = desc,
                         pocketId = pocketId
                     ))
                 }
@@ -194,6 +194,53 @@ class EquationsFragment : Fragment() {
     }
 
     private fun showDeleteDialog(equation: Equation) {
+        val options = arrayOf("Uredi", "Postavi kao favorit", "Obriši")
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle(equation.name)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showEditEquationDialog(equation)
+                    1 -> setAsFavorite(equation)
+                    2 -> confirmDelete(equation)
+                }
+            }
+            .show()
+    }
+
+    private fun showEditEquationDialog(equation: Equation) {
+        val dialogBinding = DialogAddEquationBinding.inflate(layoutInflater)
+        dialogBinding.etEquationName.setText(equation.name)
+        dialogBinding.etEquationFormula.setText(equation.formula)
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle("Uredi jednadžbu")
+            .setView(dialogBinding.root)
+            .setPositiveButton("Spremi") { _, _ ->
+                val newName = dialogBinding.etEquationName.text.toString()
+                val newFormula = dialogBinding.etEquationFormula.text.toString()
+                if (newName.isNotBlank() && newFormula.isNotBlank()) {
+                    val updated = equation.copy(name = newName, formula = newFormula)
+                    lifecycleScope.launch {
+                        database.equationDao().updateEquation(updated)
+                    }
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun setAsFavorite(equation: Equation) {
+        lifecycleScope.launch {
+            // Prvo očisti sve favorite u ovoj mapi
+            database.equationDao().clearFavoritesForPocket(pocketId)
+            // Postavi novu jednadžbu kao jedini favorit
+            val updated = equation.copy(isFavorite = true)
+            database.equationDao().updateEquation(updated)
+        }
+    }
+
+    private fun confirmDelete(equation: Equation) {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.exit)
             .setMessage("Želite li obrisati jednadžbu '${equation.name}'?")

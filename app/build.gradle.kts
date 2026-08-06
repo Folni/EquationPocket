@@ -90,4 +90,7 @@ dependencies {
     
     // Math engine
     implementation("org.matheclipse:matheclipse-core:3.2.0")
+
+    // Graphing - MPAndroidChart
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

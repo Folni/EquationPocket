@@ -40,10 +40,12 @@ class EquationAdapter(
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName: TextView = itemView.findViewById(R.id.tvEquationName)
         private val tvFormula: TextView = itemView.findViewById(R.id.tvEquationFormula)
+        private val ivFavorite: android.widget.ImageView = itemView.findViewById(R.id.ivFavorite)
 
         fun bind(equation: Equation) {
             tvName.text = equation.name
             tvFormula.text = equation.formula
+            ivFavorite.visibility = if (equation.isFavorite) View.VISIBLE else View.GONE
         }
     }
 }

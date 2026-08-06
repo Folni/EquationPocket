@@ -32,4 +32,7 @@ interface EquationDao {
 
     @Delete
     suspend fun deleteEquation(equation: Equation)
+
+    @Query("UPDATE equations SET isFavorite = 0 WHERE pocketId = :pocketId")
+    suspend fun clearFavoritesForPocket(pocketId: Long)
 }

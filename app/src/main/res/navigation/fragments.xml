@@ -57,6 +57,22 @@
     <fragment
         android:id="@+id/historyFragment"
         android:name="hr.algebra.equationpocket.fragment.HistoryFragment"
-        android:label="Povijest" />
+        android:label="Povijest">
+        <action
+            android:id="@+id/action_history_to_graph"
+            app:destination="@id/graphFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/graphFragment"
+        android:name="hr.algebra.equationpocket.fragment.GraphFragment"
+        android:label="Graf">
+        <argument
+            android:name="history"
+            app:argType="hr.algebra.equationpocket.model.HistoryEntry[]" />
+        <argument
+            android:name="xAxisVar"
+            app:argType="string" />
+    </fragment>
 
 </navigation>
