@@ -62,10 +62,11 @@ class HistoryFragment : Fragment() {
             .setView(dialogBinding.root)
             .setPositiveButton("Iscrtaj") { _, _ ->
                 val selectedVar = dialogBinding.spinnerXAxis.selectedItem.toString()
+                val useLogScale = dialogBinding.switchLogScale.isChecked
                 val bundle = Bundle().apply {
-                    // Navigacija očekuje niz (Array), pa pretvaramo listu u niz
                     putParcelableArray("history", history.toTypedArray())
                     putString("xAxisVar", selectedVar)
+                    putBoolean("useLogScale", useLogScale)
                 }
                 findNavController().navigate(R.id.action_history_to_graph, bundle)
             }

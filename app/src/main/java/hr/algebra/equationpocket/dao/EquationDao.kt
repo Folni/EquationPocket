@@ -24,6 +24,9 @@ interface EquationDao {
     @Query("SELECT * FROM equations WHERE pocketId = :pocketId")
     fun getEquationsForPocket(pocketId: Long): kotlinx.coroutines.flow.Flow<List<Equation>>
 
+    @Query("SELECT * FROM equations WHERE pocketId = :pocketId")
+    suspend fun getEquationsForPocketList(pocketId: Long): List<Equation>
+
     @Query("SELECT * FROM equations")
     fun getAllEquations(): kotlinx.coroutines.flow.Flow<List<Equation>>
 

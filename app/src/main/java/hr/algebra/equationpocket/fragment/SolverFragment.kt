@@ -101,8 +101,9 @@ class SolverFragment : Fragment() {
         variableFields.clear()
 
         variables.forEach { varName ->
-            val inputLayout = TextInputLayout(requireContext()).apply {
-                hint = varName
+            val rowLayout = LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -110,16 +111,33 @@ class SolverFragment : Fragment() {
                 params.setMargins(0, 0, 0, 16)
                 layoutParams = params
             }
-            
+
+            val tvName = android.widget.TextView(requireContext()).apply {
+                text = "$varName ="
+                textSize = 18f
+                setTextColor(android.graphics.Color.BLACK)
+                layoutParams = LinearLayout.LayoutParams(
+                    (60 * resources.displayMetrics.density).toInt(), // Fiksna širina za poravnanje
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+
             val editText = TextInputEditText(requireContext()).apply {
                 inputType = InputType.TYPE_CLASS_TEXT
-                showSoftInputOnFocus = false 
+                showSoftInputOnFocus = false
+                textSize = 18f
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
             }
+
+            rowLayout.addView(tvName)
+            rowLayout.addView(editText)
             
-            inputLayout.addView(editText)
-            // Umećemo polje iznad layoutButtons
             val index = binding.containerVariables.indexOfChild(binding.layoutButtons)
-            binding.containerVariables.addView(inputLayout, index)
+            binding.containerVariables.addView(rowLayout, index)
             variableFields[varName] = editText
         }
     }
