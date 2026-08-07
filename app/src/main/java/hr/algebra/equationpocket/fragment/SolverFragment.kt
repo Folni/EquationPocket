@@ -55,6 +55,9 @@ class SolverFragment : Fragment() {
         setupVariableFields(formula)
         setupKeyboard()
         
+        // Sakrivamo zeleni gumb za izračun na tastaturi jer imamo ljubičasti gumb na ekranu
+        binding.mathKeyboard.btnKeyboardCalculate.visibility = View.GONE
+        
         binding.btnCalculate.setOnClickListener {
             calculateResult(formula)
         }
@@ -216,6 +219,11 @@ class SolverFragment : Fragment() {
                     currentUnknownVar = unknownVar
                 }
 
+                // Provjera koriste li ulazni podaci znanstveni zapis
+                val anyScientificInput = variableFields.values.any { 
+                    it.text.toString().contains("10^") || it.text.toString().contains("E") 
+                }
+
                 val result = if (unknownVar == null) {
                     @Suppress("DEPRECATION")
                     mathEvaluator.evaluate(expressionToSolve.replace("=", "=="))
@@ -230,7 +238,7 @@ class SolverFragment : Fragment() {
                     mathEvaluator.evaluate(solveExpr)
                 }
 
-                val resultString = result.toString()
+                var resultString = result.toString()
                 
                 when {
                     resultString.contains("Indeterminate") || 
@@ -246,9 +254,30 @@ class SolverFragment : Fragment() {
                         lastRawResult = resultString
                         isDecimalView = false
                         
-                        val displayResult = formatDisplayResult(resultString, unknownVar)
+                        // Ako je ulaz znanstveni ili je broj jako velik/mali, automatski prikaži u znanstvenom zapisu
+                        if (anyScientificInput) {
+                            val valueOnly = if (resultString.contains("->")) {
+                                resultString.substringAfter("->").replace("}", "").trim()
+                            } else {
+                                resultString
+                            }
+                            // Provjeravamo je li rezultat broj prije konverzije
+                            if (valueOnly.toDoubleOrNull() != null || valueOnly.contains("*10^")) {
+                                @Suppress("DEPRECATION")
+                                val decimalExpr = mathEvaluator.evaluate("N($valueOnly, 6)")
+                                // Popravljeno: spremamo rezultat bez naziva varijable da formatDisplayResult ne napravi dupli ispis
+                                lastRawResult = decimalExpr.toString()
+                                isDecimalView = true
+                            } else {
+                                lastRawResult = resultString
+                            }
+                        } else {
+                            lastRawResult = resultString
+                        }
+
+                        val displayResult = formatDisplayResult(lastRawResult!!, unknownVar)
                         
-                        // Spremanje u povijest
+                        // Spremanje u povijest (ovdje koristimo već formatirani displayResult za konzistentnost)
                         if (unknownVar != null) {
                             val inputsString = inputsMap.entries.joinToString(", ") { "${it.key}=${it.value}" }
                             calculationHistory.add(0, HistoryEntry(inputsString, displayResult, unknownVar))
@@ -303,6 +332,11 @@ class SolverFragment : Fragment() {
                 val unknownVar = variableFields.filter { it.value.text.isBlank() }.keys.firstOrNull()
                 val displayText = if (unknownVar != null) "$unknownVar = $finalValue" else finalValue
                 
+                // Ažuriraj i povijest ako postoji zadnji izračun za tu varijablu
+                if (calculationHistory.isNotEmpty() && calculationHistory[0].unknownVar == unknownVar) {
+                    calculationHistory[0] = calculationHistory[0].copy(result = displayText)
+                }
+
                 withContext(Dispatchers.Main) {
                     binding.tvResult.text = displayText
                 }

@@ -1,10 +1,19 @@
 package hr.algebra.equationpocket.fragment
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +40,7 @@ class EquationsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         pocketId = arguments?.getLong("pocketId") ?: -1
     }
 
@@ -193,8 +203,57 @@ class EquationsFragment : Fragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.equations_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.miImport -> {
+                showImportDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun showImportDialog() {
+        val editText = EditText(requireContext()).apply {
+            hint = "Zalijepite kod ovdje"
+        }
+        AlertDialog.Builder(requireContext())
+            .setTitle("Uvezi jednadžbu")
+            .setView(editText)
+            .setPositiveButton("Uvezi") { _, _ ->
+                val encoded = editText.text.toString().trim()
+                if (encoded.isNotBlank()) {
+                    importEquation(encoded)
+                }
+            }
+            .setNegativeButton("Odustani", null)
+            .show()
+    }
+
+    private fun importEquation(encoded: String) {
+        try {
+            val decodedBytes = Base64.decode(encoded, Base64.DEFAULT)
+            val decodedString = String(decodedBytes, Charsets.UTF_8)
+            val parts = decodedString.split("|")
+            if (parts.size == 2) {
+                val name = parts[0]
+                val formula = parts[1]
+                saveEquation(Equation(name = name, formula = formula, pocketId = pocketId))
+                Toast.makeText(requireContext(), "Uspješno uvezeno!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Neispravan kod!", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Greška pri dekodiranju!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun showDeleteDialog(equation: Equation) {
-        val options = arrayOf("Uredi", "Postavi kao favorit", "Obriši")
+        val options = arrayOf("Uredi", "Postavi kao favorit", "Kopiraj za dijeljenje", "Obriši")
         
         AlertDialog.Builder(requireContext())
             .setTitle(equation.name)
@@ -202,10 +261,22 @@ class EquationsFragment : Fragment() {
                 when (which) {
                     0 -> showEditEquationDialog(equation)
                     1 -> setAsFavorite(equation)
-                    2 -> confirmDelete(equation)
+                    2 -> copyToClipboard(equation)
+                    3 -> confirmDelete(equation)
                 }
             }
             .show()
+    }
+
+    private fun copyToClipboard(equation: Equation) {
+        val rawString = "${equation.name}|${equation.formula}"
+        val encoded = Base64.encodeToString(rawString.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+        
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("EquationPocket Code", encoded)
+        clipboard.setPrimaryClip(clip)
+        
+        Toast.makeText(requireContext(), "Kôd kopiran u međuspremnik!", Toast.LENGTH_SHORT).show()
     }
 
     private fun showEditEquationDialog(equation: Equation) {
