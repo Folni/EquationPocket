@@ -57,6 +57,16 @@ class EquationsFragment : Fragment() {
         setupRecyclerView()
         observeEquations()
         setupListeners()
+        setupFragmentResultListeners()
+    }
+
+    private fun setupFragmentResultListeners() {
+        parentFragmentManager.setFragmentResultListener("camera_result", viewLifecycleOwner) { _, bundle ->
+            val scannedFormula = bundle.getString("scanned_formula")
+            if (!scannedFormula.isNullOrBlank()) {
+                showAddEquationDialog(prefilledFormula = scannedFormula)
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -94,8 +104,13 @@ class EquationsFragment : Fragment() {
         }
     }
 
-    private fun showAddEquationDialog() {
+    private fun showAddEquationDialog(prefilledFormula: String? = null) {
         val dialogBinding = DialogAddEquationBinding.inflate(layoutInflater)
+        
+        if (!prefilledFormula.isNullOrBlank()) {
+            dialogBinding.etEquationFormula.setText(prefilledFormula)
+        }
+
         val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
         
         dialogBinding.keyboardContainerDialog.visibility = View.GONE
@@ -211,6 +226,10 @@ class EquationsFragment : Fragment() {
         return when (item.itemId) {
             R.id.miImport -> {
                 showImportDialog()
+                true
+            }
+            R.id.miCamera -> {
+                findNavController().navigate(R.id.action_equations_to_camera)
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -40,7 +40,15 @@
         <action
             android:id="@+id/action_equations_to_solver"
             app:destination="@id/solverFragment" />
+        <action
+            android:id="@+id/action_equations_to_camera"
+            app:destination="@id/cameraFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="hr.algebra.equationpocket.fragment.CameraFragment"
+        android:label="Skeniranje" />
 
     <fragment
         android:id="@+id/solverFragment"

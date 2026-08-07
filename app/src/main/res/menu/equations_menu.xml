@@ -6,4 +6,9 @@
         android:icon="@android:drawable/ic_menu_add"
         android:title="Uvezi"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/miCamera"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="Skeniraj"
+        app:showAsAction="ifRoom" />
 </menu>
