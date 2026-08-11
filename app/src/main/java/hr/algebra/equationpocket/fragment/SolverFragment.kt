@@ -30,6 +30,7 @@ class SolverFragment : Fragment() {
     private val variableFields = mutableMapOf<String, EditText>()
     private var lastRawResult: String? = null
     private var isDecimalView = false
+    private var isCapsLock = false
     private val calculationHistory = mutableListOf<HistoryEntry>()
     private var currentUnknownVar: String? = null
 
@@ -115,7 +116,6 @@ class SolverFragment : Fragment() {
             val tvName = android.widget.TextView(requireContext()).apply {
                 text = "$varName ="
                 textSize = 18f
-                setTextColor(android.graphics.Color.BLACK)
                 layoutParams = LinearLayout.LayoutParams(
                     (60 * resources.displayMetrics.density).toInt(), // Fiksna širina za poravnanje
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -144,8 +144,8 @@ class SolverFragment : Fragment() {
 
     private fun setupKeyboard() {
         val keys123 = listOf("1", "2", "3", "+", "-", "4", "5", "6", "*", "/", "7", "8", "9", "(", ")", "0", ".", "^", "=", "DEL")
-        val keysAbc = ('a'..'z').map { it.toString() } + "DEL"
-        val keysSymbols = listOf("Δ", "π", "α", "β", "γ", "θ", "λ", "e", "i", "φ", "Ω", "∞", "→", "!", "[", "]", "{", "}", ",", " ", "DEL")
+        val keysAbc = ('a'..'z').map { it.toString() } + listOf("CAPS", "DEL")
+        val keysSymbols = listOf("Δ", "π", "α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "λ", "μ", "ν", "ξ", "ρ", "σ", "τ", "φ", "χ", "ψ", "ω", "e", "i", "Ω", "∞", "→", "!", "[", "]", "{", "}", ",", " ", "DEL")
         val keysAdvanced = listOf("D", "lim", "Sum", "∫", "√", "log", "ln", "sin", "cos", "tan", "cot", "sec", "csc", "asin", "acos", "atan", "floor", "ceil", "abs", "DEL")
 
         fun updateKeyboard(keys: List<String>) {
@@ -153,10 +153,20 @@ class SolverFragment : Fragment() {
             binding.mathKeyboard.gridKeyboard.columnCount = if (keys.size > 20) 6 else 5
             
             keys.forEach { key ->
+                val displayKey = if (isCapsLock && key.length == 1 && key[0].isLowerCase()) key.uppercase() else key
                 val button = Button(requireContext()).apply {
-                    text = key
+                    text = displayKey
+                    if (key == "CAPS" && isCapsLock) {
+                        setBackgroundColor(android.graphics.Color.parseColor("#3700B3")) // Tamno ljubičasta za aktivno stanje
+                        setTextColor(android.graphics.Color.WHITE)
+                    }
                     setOnClickListener {
-                        onKeyPress(key)
+                        if (key == "CAPS") {
+                            isCapsLock = !isCapsLock
+                            updateKeyboard(keysAbc)
+                        } else {
+                            onKeyPress(displayKey)
+                        }
                     }
                 }
                 

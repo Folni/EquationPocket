@@ -47,7 +47,6 @@
                     android:layout_height="wrap_content"
                     android:lineSpacingExtra="4dp"
                     android:text="EquationPocket je napredna Android aplikacija dizajnirana za studente, profesore i stručnjake u STEM područjima (fizika, kemija, matematika). \n\nAplikacija omogućuje:\n\n• Organizaciju jednadžbi u prilagođene mape (Pockets).\n• Napredno rješavanje formula pomoću Symja CAS engine-a.\n• Podršku za derivacije, integrale, limese i sume.\n• Dinamičko prepoznavanje varijabli i automatski izračun nepoznanica.\n• Specijaliziranu znanstvenu tastaturu za brz unos simbola."
-                    android:textColor="#333333"
                     android:textSize="16sp" />
 
             </LinearLayout>

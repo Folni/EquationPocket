@@ -35,6 +35,7 @@ class EquationsFragment : Fragment() {
 
     private lateinit var equationAdapter: EquationAdapter
     private val database by lazy { AppDatabase.getDatabase(requireContext()) }
+    private var isCapsLock = false
     
     private var pocketId: Long = -1
 
@@ -159,8 +160,8 @@ class EquationsFragment : Fragment() {
 
     private fun setupDialogKeyboard(dialogBinding: DialogAddEquationBinding) {
         val keys123 = listOf("1", "2", "3", "+", "-", "4", "5", "6", "*", "/", "7", "8", "9", "(", ")", "0", ".", "^", "=", "DEL")
-        val keysAbc = ('a'..'z').map { it.toString() } + "DEL"
-        val keysSymbols = listOf("Δ", "π", "α", "β", "γ", "θ", "λ", "e", "i", "φ", "Ω", "∞", "→", "!", "[", "]", "{", "}", ",", " ", "DEL")
+        val keysAbc = ('a'..'z').map { it.toString() } + listOf("CAPS", "DEL")
+        val keysSymbols = listOf("Δ", "π", "α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "λ", "μ", "ν", "ξ", "ρ", "σ", "τ", "φ", "χ", "ψ", "ω", "e", "i", "Ω", "∞", "→", "!", "[", "]", "{", "}", ",", " ", "DEL")
         val keysAdvanced = listOf("D", "lim", "Sum", "∫", "√", "log", "ln", "sin", "cos", "tan", "cot", "sec", "csc", "asin", "acos", "atan", "floor", "ceil", "abs", "DEL")
 
         fun updateKeyboard(keys: List<String>) {
@@ -169,18 +170,28 @@ class EquationsFragment : Fragment() {
             dialogBinding.mathKeyboardDialog.gridKeyboard.columnCount = if (keys.size > 20) 6 else 5
             
             keys.forEach { key ->
+                val displayKey = if (isCapsLock && key.length == 1 && key[0].isLowerCase()) key.uppercase() else key
                 val button = Button(requireContext()).apply {
-                    text = key
+                    text = displayKey
+                    if (key == "CAPS" && isCapsLock) {
+                        setBackgroundColor(android.graphics.Color.parseColor("#3700B3"))
+                        setTextColor(android.graphics.Color.WHITE)
+                    }
                     setOnClickListener {
-                        val focusedView = dialogBinding.etEquationFormula
-                        val editable = focusedView.text
-                        if (key == "DEL") {
-                            val start = focusedView.selectionStart
-                            if (start > 0 && editable != null) {
-                                editable.delete(start - 1, start)
+                        if (key == "CAPS") {
+                            isCapsLock = !isCapsLock
+                            updateKeyboard(keysAbc)
+                        } else {
+                            val focusedView = dialogBinding.etEquationFormula
+                            val editable = focusedView.text
+                            if (key == "DEL") {
+                                val start = focusedView.selectionStart
+                                if (start > 0 && editable != null) {
+                                    editable.delete(start - 1, start)
+                                }
+                            } else if (editable != null) {
+                                editable.insert(focusedView.selectionStart, displayKey)
                             }
-                        } else if (editable != null) {
-                            editable.insert(focusedView.selectionStart, key)
                         }
                     }
                 }

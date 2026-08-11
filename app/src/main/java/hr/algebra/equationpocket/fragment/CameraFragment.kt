@@ -2,6 +2,7 @@ package hr.algebra.equationpocket.fragment
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -115,8 +116,26 @@ class CameraFragment : Fragment() {
 
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
-                    // Filtriramo najduži redak koji izgleda kao jednadžba
+                    // Dohvaćamo dimenzije slike koju ML Kit analizira
+                    val imgWidth = imageProxy.width.toFloat()
+                    val imgHeight = imageProxy.height.toFloat()
+
+                    // Budući da su koordinate ML Kita vezane uz sliku, moramo ih mapirati
+                    // Overlay je fiksno u sredini ekrana. ML Kit radi s rotiranom slikom.
+                    // Uzimamo širi centralni pojas (ROI) kako bismo bili sigurni da hvata tekst unutar okvira.
+                    val roiLeft = imgWidth * 0.25f
+                    val roiRight = imgWidth * 0.75f
+                    val roiTop = imgHeight * 0.35f
+                    val roiBottom = imgHeight * 0.65f
+
+                    // Filtriramo tekstualne blokove koji se sjeku s našim centralnim ROI-em
                     val result = visionText.textBlocks
+                        .filter { block ->
+                            val box = block.boundingBox
+                            box != null && 
+                            box.centerX() > roiLeft && box.centerX() < roiRight &&
+                            box.centerY() > roiTop && box.centerY() < roiBottom
+                        }
                         .flatMap { it.lines }
                         .map { it.text.replace(" ", "") }
                         .filter { it.contains("=") || it.contains("+") || it.contains("-") || it.contains("*") }

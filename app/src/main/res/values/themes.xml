@@ -9,6 +9,10 @@
         <item name="android:statusBarColor">#6200EE</item>
         <!-- Isključujemo 'light' status bar kako bi ikone (sat, baterija) ostale BIJELE -->
         <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Prilagodba CardView i boja pozadine za Dark Mode -->
+        <item name="colorSurface">?attr/colorSurface</item>
+        <item name="colorOnSurface">?attr/colorOnSurface</item>
     </style>
 
     <style name="SplashScreenTheme" parent="Theme.EquationPocket">
