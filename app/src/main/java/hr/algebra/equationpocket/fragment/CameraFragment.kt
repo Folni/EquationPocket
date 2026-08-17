@@ -2,7 +2,6 @@ package hr.algebra.equationpocket.fragment
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,6 +27,8 @@ class CameraFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var cameraExecutor: ExecutorService
+    private var cameraControl: CameraControl? = null
+    private var isFlashOn = false
     private var detectedFormula: String = ""
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -64,12 +65,16 @@ class CameraFragment : Fragment() {
                 val bundle = Bundle().apply {
                     putString("scanned_formula", detectedFormula)
                 }
-                // Vraćamo rezultat prethodnom fragmentu
                 parentFragmentManager.setFragmentResult("camera_result", bundle)
                 findNavController().popBackStack()
             } else {
                 Toast.makeText(requireContext(), "Ništa nije detektirano!", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        binding.btnFlash.setOnClickListener {
+            isFlashOn = !isFlashOn
+            cameraControl?.enableTorch(isFlashOn)
         }
     }
 
@@ -94,12 +99,23 @@ class CameraFragment : Fragment() {
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                val camera = cameraProvider.bindToLifecycle(
                     viewLifecycleOwner, 
                     CameraSelector.DEFAULT_BACK_CAMERA, 
                     preview, 
                     imageAnalyzer
                 )
+                cameraControl = camera.cameraControl
+                
+                // Pinch to zoom podrška
+                binding.previewView.setOnTouchListener { _, event ->
+                    // Jednostavan zoom na tap za demo
+                    if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                        cameraControl?.setLinearZoom(0.5f) // Zoom na 50%
+                    }
+                    true
+                }
+
             } catch (exc: Exception) {
                 Log.e("CameraFragment", "Binding failed", exc)
             }
@@ -116,25 +132,25 @@ class CameraFragment : Fragment() {
 
             recognizer.process(image)
                 .addOnSuccessListener { visionText ->
-                    // Dohvaćamo dimenzije slike koju ML Kit analizira
-                    val imgWidth = imageProxy.width.toFloat()
-                    val imgHeight = imageProxy.height.toFloat()
+                    // ML Kit koordinate su u koordinatnom sustavu rotirane slike
+                    // Za portretni mod (90 deg), X slike je zapravo Y na ekranu.
+                    val width = imageProxy.width.toFloat()
+                    val height = imageProxy.height.toFloat()
 
-                    // Budući da su koordinate ML Kita vezane uz sliku, moramo ih mapirati
-                    // Overlay je fiksno u sredini ekrana. ML Kit radi s rotiranom slikom.
-                    // Uzimamo širi centralni pojas (ROI) kako bismo bili sigurni da hvata tekst unutar okvira.
-                    val roiLeft = imgWidth * 0.25f
-                    val roiRight = imgWidth * 0.75f
-                    val roiTop = imgHeight * 0.35f
-                    val roiBottom = imgHeight * 0.65f
+                    // ROI kalibracija (za 90 deg rotaciju)
+                    // Na ekranu je overlay u sredini (visina oko 35% do 65%)
+                    // To u rotiranoj slici ML Kita odgovara centralnom pojasu širine.
+                    val roiMinX = width * 0.35f
+                    val roiMaxX = width * 0.65f
+                    val roiMinY = height * 0.25f
+                    val roiMaxY = height * 0.75f
 
-                    // Filtriramo tekstualne blokove koji se sjeku s našim centralnim ROI-em
                     val result = visionText.textBlocks
                         .filter { block ->
                             val box = block.boundingBox
                             box != null && 
-                            box.centerX() > roiLeft && box.centerX() < roiRight &&
-                            box.centerY() > roiTop && box.centerY() < roiBottom
+                            box.centerX() > roiMinX && box.centerX() < roiMaxX &&
+                            box.centerY() > roiMinY && box.centerY() < roiMaxY
                         }
                         .flatMap { it.lines }
                         .map { it.text.replace(" ", "") }
@@ -142,12 +158,13 @@ class CameraFragment : Fragment() {
                         .maxByOrNull { it.length } ?: ""
                     
                     if (result.isNotBlank()) {
-                        // Osnovno čišćenje OCR grešaka
+                        // Poboljšani post-processing za matematiku
                         detectedFormula = result
-                            .replace("x2", "x^2")
-                            .replace("y2", "y^2")
-                            .replace("z2", "z^2")
-                            .replace("=", " = ") // Razmak oko jednakosti za čitljivost
+                            .replace(Regex("([a-zA-Z])2"), "$1^2") // x2 -> x^2
+                            .replace(Regex("([a-zA-Z])3"), "$1^3") // x3 -> x^3
+                            .replace("²", "^2")
+                            .replace("³", "^3")
+                            .replace("=", " = ")
                         
                         activity?.runOnUiThread {
                             binding.tvDetectedText.text = detectedFormula
