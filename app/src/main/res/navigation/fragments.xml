@@ -28,6 +28,12 @@
         tools:layout="@layout/fragment_help"/>
 
     <fragment
+        android:id="@+id/menuTutorial"
+        android:label="@string/tutorial"
+        android:name="hr.algebra.equationpocket.fragment.TutorialFragment"
+        tools:layout="@layout/fragment_tutorial_trigger"/>
+
+    <fragment
         android:id="@+id/equationsFragment"
         android:name="hr.algebra.equationpocket.fragment.EquationsFragment"
         android:label="{pocketName}">

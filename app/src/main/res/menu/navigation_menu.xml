@@ -17,4 +17,9 @@
         android:title="@string/help"
         android:icon="@drawable/items"/>
 
+    <item
+        android:id="@+id/menuTutorial"
+        android:title="@string/tutorial"
+        android:icon="@drawable/green_flag"/>
+
 </menu>

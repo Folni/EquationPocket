@@ -22,8 +22,10 @@ import hr.algebra.equationpocket.R
 import hr.algebra.equationpocket.adapter.PocketAdapter
 import hr.algebra.equationpocket.dao.AppDatabase
 import hr.algebra.equationpocket.databinding.FragmentPocketsBinding
+import hr.algebra.equationpocket.databinding.DialogTutorialBinding
 import hr.algebra.equationpocket.model.Equation
 import hr.algebra.equationpocket.model.Pocket
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class PocketsFragment : Fragment() {
@@ -52,6 +54,51 @@ class PocketsFragment : Fragment() {
         setupRecyclerView()
         observePockets()
         setupListeners()
+        checkShowTutorial()
+    }
+
+    private fun checkShowTutorial() {
+        lifecycleScope.launch {
+            val pockets = database.equationDao().getAllPockets().first()
+            if (pockets.isEmpty()) {
+                showTutorialDialog()
+            }
+        }
+    }
+
+    private fun showTutorialDialog() {
+        val dialogBinding = DialogTutorialBinding.inflate(layoutInflater)
+        val tutorialImages = listOf(R.drawable.tutorial_1, R.drawable.tutorial_2, R.drawable.tutorial_3)
+        var currentStep = 0
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .setCancelable(false)
+            .create()
+
+        fun updateUI() {
+            dialogBinding.ivTutorial.setImageResource(tutorialImages[currentStep])
+            dialogBinding.btnTutorialPrev.visibility = if (currentStep == 0) View.INVISIBLE else View.VISIBLE
+            dialogBinding.btnTutorialNext.text = if (currentStep == tutorialImages.size - 1) "Završi" else "Dalje"
+        }
+
+        dialogBinding.btnTutorialNext.setOnClickListener {
+            if (currentStep < tutorialImages.size - 1) {
+                currentStep++
+                updateUI()
+            } else {
+                dialog.dismiss()
+            }
+        }
+
+        dialogBinding.btnTutorialPrev.setOnClickListener {
+            if (currentStep > 0) {
+                currentStep--
+                updateUI()
+            }
+        }
+
+        dialog.show()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
