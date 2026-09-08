@@ -137,13 +137,13 @@ class CameraFragment : Fragment() {
                     val width = imageProxy.width.toFloat()
                     val height = imageProxy.height.toFloat()
 
-                    // ROI kalibracija (za 90 deg rotaciju)
-                    // Na ekranu je overlay u sredini (visina oko 35% do 65%)
-                    // To u rotiranoj slici ML Kita odgovara centralnom pojasu širine.
-                    val roiMinX = width * 0.35f
-                    val roiMaxX = width * 0.65f
-                    val roiMinY = height * 0.25f
-                    val roiMaxY = height * 0.75f
+                    // ROI kalibracija (za 90 deg rotaciju) - KORIGIRANO
+                    // Ako čita IZNAD okvira, moramo SMANJITI X vrijednosti u memoriji slike
+                    // (jer u 90 deg rotaciji veći X u slici znači manji Y na ekranu)
+                    val roiMinX = width * 0.25f
+                    val roiMaxX = width * 0.55f
+                    val roiMinY = height * 0.20f
+                    val roiMaxY = height * 0.80f
 
                     val result = visionText.textBlocks
                         .filter { block ->
