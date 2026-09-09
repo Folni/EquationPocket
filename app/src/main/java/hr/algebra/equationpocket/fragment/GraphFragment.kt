@@ -2,6 +2,7 @@ package hr.algebra.equationpocket.fragment
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,6 +42,7 @@ class GraphFragment : Fragment() {
     }
 
     private fun setupGraph(history: List<HistoryEntry>, xAxisVar: String, useLogScale: Boolean) {
+        val startTime = System.currentTimeMillis() // Početak mjerenja
         val entries = mutableListOf<Entry>()
         
         history.forEach { item ->
@@ -128,6 +130,9 @@ class GraphFragment : Fragment() {
 
             animateX(800)
             invalidate()
+            
+            val duration = System.currentTimeMillis() - startTime
+            Log.d("Performance", "Vrijeme iscrtavanja grafa: $duration ms")
         }
     }
 
